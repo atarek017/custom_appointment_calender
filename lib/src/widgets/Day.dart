@@ -129,8 +129,8 @@ class Day extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: useUnselectedEffect
-                ? EventCalendar.dayEventCountColor.withOpacity(0.4)
-                : EventCalendar.dayEventCountColor,
+                ? todayEvents[i].color.withOpacity(0.4)
+                : todayEvents[i].color,
           ),
         ),
       );

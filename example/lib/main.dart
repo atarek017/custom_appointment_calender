@@ -74,6 +74,7 @@ class MyHomePage extends StatelessWidget {
             ),
             Event(
               title: 'Laravel Event 4',
+
               description:
                   'The largest Laravel event of the year, streamed directly to you. We’ve put together a full day of talks featuring some of Laravel’s brightest minds, and streaming them directly to your home or office.',
               dateTime: '2024-08-02 20:00',
