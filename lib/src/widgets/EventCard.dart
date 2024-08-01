@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_event_calendar/src/handlers/EventCalendar.dart';
-import 'package:flutter_event_calendar/src/handlers/Event.dart';
 import 'package:flutter_event_calendar/src/widgets/upcoming_date_time.dart';
 
 class EventCard extends StatelessWidget {
-  Event fullCalendarEvent;
+  final Event fullCalendarEvent;
   final int appoinmentCount;
 
   EventCard({required this.fullCalendarEvent, required this.appoinmentCount});

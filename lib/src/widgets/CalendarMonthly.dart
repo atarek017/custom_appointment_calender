@@ -1,18 +1,19 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_event_calendar/flutter_event_calendar.dart';
 import 'package:flutter_event_calendar/src/handlers/CalendarSelector.dart';
-import 'package:flutter_event_calendar/src/handlers/EventCalendar.dart';
 import 'package:flutter_event_calendar/src/handlers/Translator.dart';
 import 'package:flutter_event_calendar/src/widgets/Day.dart';
 
 class CalendarMonthly extends StatefulWidget {
-  Function onCalendarChanged;
+  final Function onCalendarChanged;
+  final bool showEvents;
   final void Function(int, int, int) getCurrentSelectedDay;
 
   CalendarMonthly(
-      {required this.onCalendarChanged, required this.getCurrentSelectedDay, Key? key})
+      {required this.onCalendarChanged,
+      required this.getCurrentSelectedDay,
+      Key? key,
+      this.showEvents = false})
       : super();
 
   @override
@@ -47,32 +48,31 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
           : TextDirection.ltr,
       children: List.generate(
         7,
-            (index) =>
-            Expanded(
-              child: Center(
-                heightFactor: 2,
-                child: Text(
-                  dayNames[index],
-                  style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: EventCalendar.font),
-                ),
-              ),
+        (index) => Expanded(
+          child: Center(
+            heightFactor: 2,
+            child: Text(
+              dayNames[index],
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: EventCalendar.font),
             ),
+          ),
+        ),
       ),
     );
   }
 
   _buildMonthView() {
     final currentMonth =
-    calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
+        calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
 
     final int firstDayIndex = getFirstDayOfMonth();
     final int lastDayIndex = firstDayIndex + getLastDayOfMonth();
     final lastMonthLastDay = getLastMonthLastDay();
     final int cDayIndex =
-    calendarSelector.getPart(format: PartFormat.day, responseType: 'int');
+        calendarSelector.getPart(format: PartFormat.day, responseType: 'int');
 
     return SizedBox(
       height: 7 * 40,
@@ -85,9 +85,8 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
             itemCount: 42,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 7, mainAxisExtent: 45),
-            itemBuilder: (context, index) =>
-                _buildItem(index, firstDayIndex,
-                    lastDayIndex, lastMonthLastDay, currentMonth, cDayIndex)),
+            itemBuilder: (context, index) => _buildItem(index, firstDayIndex,
+                lastDayIndex, lastMonthLastDay, currentMonth, cDayIndex)),
       ),
     );
   }
@@ -111,14 +110,15 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
       if (dayIndex == cDayIndex) {
         // print("****Calender Monthly Day Index$dayIndex - ${getMonth(
         //     currentMonth)}  - ${getYear(currentMonth)}");
-        widget.getCurrentSelectedDay(dayIndex, getMonth(
-            currentMonth), getYear(currentMonth));
+        widget.getCurrentSelectedDay(
+            dayIndex, getMonth(currentMonth), getYear(currentMonth));
       }
       return Center(
         child: Day(
           month: getMonth(currentMonth),
           year: getYear(currentMonth),
           dayIndex: dayIndex,
+          showEvents: widget.showEvents,
           weekDay: '',
           selected: dayIndex == cDayIndex,
           onCalendarChanged: () {
@@ -128,12 +128,12 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
           mini: true,
         ),
       );
-    }
-    else if (isNextMonthDays)
+    } else if (isNextMonthDays)
       return Center(
           child: Day(
               dayIndex: dayIndex,
               useUnselectedEffect: true,
+              showEvents: widget.showEvents,
               weekDay: '',
               month: getMonth(currentMonth + 1),
               year: getYear(currentMonth + 1),
@@ -151,6 +151,7 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
           child: Day(
               dayIndex: dayIndex,
               useUnselectedEffect: true,
+              showEvents: widget.showEvents,
               month: getMonth(currentMonth - 1),
               year: getYear(currentMonth - 1),
               weekDay: '',
@@ -169,30 +170,24 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
 
   int getFirstDayOfMonth() {
     final currentMonth =
-    calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
+        calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
     final monthDays = calendarSelector.getMonthDaysShort(currentMonth);
     return dayNames.indexOf(monthDays[1]);
   }
 
   int getLastDayOfMonth() {
     final currentMonth =
-    calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
-    return calendarSelector
-        .getDays(currentMonth)
-        .keys
-        .last;
+        calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
+    return calendarSelector.getDays(currentMonth).keys.last;
   }
 
   int getLastMonthLastDay() {
     final cMonth =
-    calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
+        calendarSelector.getPart(format: PartFormat.month, responseType: 'int');
     if (cMonth - 1 < 1) {
       return -1;
     }
-    return calendarSelector
-        .getDays(cMonth - 1)
-        .keys
-        .last;
+    return calendarSelector.getDays(cMonth - 1).keys.last;
   }
 
   getMonth(int month) {
@@ -204,7 +199,7 @@ class _CalendarMonthlyState extends State<CalendarMonthly> {
 
   getYear(int month) {
     final year =
-    calendarSelector.getPart(format: PartFormat.year, responseType: 'int');
+        calendarSelector.getPart(format: PartFormat.year, responseType: 'int');
     if (month > 12)
       return year + 1;
     else if (month < 1) return year - 1;

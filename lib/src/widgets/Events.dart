@@ -7,51 +7,55 @@ import 'package:flutter_event_calendar/src/handlers/Translator.dart';
 import 'package:flutter_event_calendar/src/widgets/EventCard.dart';
 
 class Events extends StatelessWidget {
-  Function onEventsChanged;
+  final Function onEventsChanged;
 
   Events({required this.onEventsChanged});
-
   @override
   Widget build(BuildContext context) {
+    var selectedEvents = EventSelector().updateEvents();
+
     return Expanded(
-      child: Padding(
-        padding: EdgeInsets.all(5),
-        child: GestureDetector(
-          onPanEnd: ((details) {
-            Velocity vc = details.velocity;
-            String clearVc;
-            clearVc = vc.toString().replaceAll('(', '');
-            clearVc = clearVc.toString().replaceAll(')', '');
-            clearVc = clearVc.toString().replaceAll('Velocity', '');
-            if (double.parse(clearVc.toString().split(',')[0]) > 0) {
-              // left
-              switch (EventCalendar.calendarProvider.isRTL()) {
-                case true:
-                  CalendarSelector().nextDay();
-                  break;
-                case false:
-                  CalendarSelector().previousDay();
-                  break;
-              }
-              onEventsChanged.call();
-            } else {
-              // right
-              switch (EventCalendar.calendarProvider.isRTL()) {
-                case true:
-                  CalendarSelector().previousDay();
-                  break;
-                case false:
-                  CalendarSelector().nextDay();
-                  break;
-              }
-              onEventsChanged.call();
+      child: GestureDetector(
+        onPanEnd: ((details) {
+          Velocity vc = details.velocity;
+          String clearVc;
+          clearVc = vc.toString().replaceAll('(', '');
+          clearVc = clearVc.toString().replaceAll(')', '');
+          clearVc = clearVc.toString().replaceAll('Velocity', '');
+          if (double.parse(clearVc.toString().split(',')[0]) > 0) {
+            // left
+            switch (EventCalendar.calendarProvider.isRTL()) {
+              case true:
+                CalendarSelector().nextDay();
+                break;
+              case false:
+                CalendarSelector().previousDay();
+                break;
             }
-          }),
-          child:
-          ListView(
-            scrollDirection: Axis.vertical,
-            children: eventCardsMaker(),
-          ),
+            onEventsChanged.call();
+          } else {
+            // right
+            switch (EventCalendar.calendarProvider.isRTL()) {
+              case true:
+                CalendarSelector().previousDay();
+                break;
+              case false:
+                CalendarSelector().nextDay();
+                break;
+            }
+            onEventsChanged.call();
+          }
+        }),
+        child: ListView.builder(
+          itemCount: selectedEvents.length,
+          scrollDirection: Axis.vertical,
+          // children: eventCardsMaker(),
+          itemBuilder: (context, index) {
+            return EventCard(
+              fullCalendarEvent: selectedEvents[index],
+              appoinmentCount: selectedEvents.length,
+            );
+          },
         ),
       ),
     );
@@ -81,9 +85,7 @@ class Events extends StatelessWidget {
             color: EventCalendar.emptyIconColor,
           ),
           Text(
-            '${EventCalendar.emptyText != null
-                ? EventCalendar.emptyText
-                : Translator().getTranslation('empty')}',
+            '${EventCalendar.emptyText.isEmpty ? EventCalendar.emptyText : Translator().getTranslation('empty')}',
             style: TextStyle(
               color: EventCalendar.emptyTextColor,
               fontSize: 25,

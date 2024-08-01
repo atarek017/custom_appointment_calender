@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_event_calendar/flutter_event_calendar.dart';
-import 'package:flutter_event_calendar/src/handlers/EventCalendar.dart';
 import 'package:flutter_event_calendar/src/handlers/CalendarSelector.dart';
 import 'package:flutter_event_calendar/src/widgets/Day.dart';
 
 class CalendarDaily extends StatelessWidget {
-  Function? onCalendarChanged;
+  final Function? onCalendarChanged;
+  final bool showEvents;
   final void Function(int, int, int) getCurrentSelectedDay;
 
   var dayIndex;
   late ScrollController animatedTo;
 
-  CalendarDaily({this.onCalendarChanged, required this.getCurrentSelectedDay})
+  CalendarDaily(
+      {this.onCalendarChanged,
+      required this.getCurrentSelectedDay,
+      this.showEvents = false})
       : super() {
     dayIndex =
         CalendarSelector().getPart(format: PartFormat.day, responseType: 'int');
@@ -21,80 +24,73 @@ class CalendarDaily extends StatelessWidget {
   Widget build(BuildContext context) {
     animatedTo = ScrollController(
         initialScrollOffset: (EventCalendar.headerWeekDayStringType ==
-            HeaderWeekDayStringTypes.Full
-            ? 80.0
-            : 60.0) *
+                    HeaderWeekDayStringTypes.Full
+                ? 80.0
+                : 50.0) *
             (dayIndex - 1));
-    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       animatedTo.animateTo(
           (EventCalendar.headerWeekDayStringType ==
-              HeaderWeekDayStringTypes.Full
-              ? 80.0
-              : 60.0) *
+                      HeaderWeekDayStringTypes.Full
+                  ? 80.0
+                  : 50.0) *
               (dayIndex - 1),
           duration: Duration(milliseconds: 700),
           curve: Curves.decelerate);
     });
 
     // Yearly , Monthly , Weekly and Daily calendar
-    return Container(
-      height: 130,
-      child: Padding(
-        padding: EdgeInsets.only(top: 10, bottom: 10),
-        child: Stack(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: ListView(
-                    reverse: EventCalendar.calendarProvider.isRTL(),
-                    controller: animatedTo,
-                    scrollDirection: Axis.horizontal,
-                    children: daysMaker(),
-                  ),
-                )
-              ],
+    return SizedBox(
+      height: 60,
+      child: Stack(
+        children: [
+          Expanded(
+            child: ListView(
+              reverse: EventCalendar.calendarProvider.isRTL(),
+              controller: animatedTo,
+              scrollDirection: Axis.horizontal,
+              children: daysMaker(),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IgnorePointer(
-                child: Container(
-                  width: 70,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        const Color(0xffffffff),
-                        const Color(0x0affffff)
-                      ],
-                      tileMode: TileMode.clamp,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: IgnorePointer(
-                child: Container(
-                  width: 70,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerRight,
-                      end: Alignment.centerLeft,
-                      colors: [
-                        const Color(0xffffffff),
-                        const Color(0x0affffff)
-                      ],
-                      tileMode: TileMode.clamp,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: IgnorePointer(
+          //     child: Container(
+          //       width: 70,
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(
+          //           begin: Alignment.centerLeft,
+          //           end: Alignment.centerRight,
+          //           colors: [
+          //             const Color(0xffffffff),
+          //             const Color(0x0affffff)
+          //           ],
+          //           tileMode: TileMode.clamp,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // Align(
+          //   alignment: Alignment.centerRight,
+          //   child: IgnorePointer(
+          //     child: Container(
+          //       width: 70,
+          //       decoration: BoxDecoration(
+          //         gradient: LinearGradient(
+          //           begin: Alignment.centerRight,
+          //           end: Alignment.centerLeft,
+          //           colors: [
+          //             const Color(0xffffffff),
+          //             const Color(0x0affffff)
+          //           ],
+          //           tileMode: TileMode.clamp,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
       ),
     );
   }
@@ -108,7 +104,7 @@ class CalendarDaily extends StatelessWidget {
     List<Widget> days = [
       SizedBox(
           width: EventCalendar.headerWeekDayStringType ==
-              HeaderWeekDayStringTypes.Full
+                  HeaderWeekDayStringTypes.Full
               ? 80
               : 60)
     ];
@@ -118,15 +114,13 @@ class CalendarDaily extends StatelessWidget {
     CalendarSelector().getDays(currentMonth).forEach((index, weekDay) {
       var selected = index == day ? true : false;
       if (selected) {
-        // print(
-        //     "****Calender Daily Day Index$dayIndex - ${currentMonth}  - ${currentYear}");
-        getCurrentSelectedDay(dayIndex,
-            currentMonth, currentYear);
+        getCurrentSelectedDay(dayIndex, currentMonth, currentYear);
       }
       days.add(Day(
         dayIndex: index,
         year: currentYear,
         mini: false,
+        showEvents: showEvents,
         month: currentMonth,
         weekDay: weekDay,
         selected: selected,
@@ -139,7 +133,7 @@ class CalendarDaily extends StatelessWidget {
 
     days.add(SizedBox(
         width: EventCalendar.headerWeekDayStringType ==
-            HeaderWeekDayStringTypes.Full
+                HeaderWeekDayStringTypes.Full
             ? 80
             : 60));
 

@@ -8,6 +8,8 @@ import 'package:flutter_event_calendar/src/widgets/CalendarDaily.dart';
 import 'package:flutter_event_calendar/src/widgets/CalendarMonthly.dart';
 import 'package:flutter_event_calendar/src/widgets/Events.dart';
 import 'package:flutter_event_calendar/src/widgets/Header.dart';
+
+import 'EventSelector.dart';
 export 'package:flutter_event_calendar/src/handlers/Event.dart';
 
 class EventCalendar extends StatefulWidget {
@@ -41,9 +43,12 @@ class EventCalendar extends StatefulWidget {
   static bool canSelectViewType = false;
   final VoidCallback onMonthChanged;
   final void Function(int, int, int) getCurrentSelectedDay;
+  final bool showEvents;
+  final Widget Function(BuildContext context, List<Event> events)? eventBuilder;
+  final Color headerMonthColor;
 
-
-  EventCalendar({List<Event>? events,
+  EventCalendar({
+    List<Event>? events,
     canSelectViewType,
     dateTime,
     font,
@@ -70,9 +75,12 @@ class EventCalendar extends StatefulWidget {
     calendarLanguage,
     calendarType,
     required this.onMonthChanged,
-    required this.getCurrentSelectedDay}) {
+    required this.getCurrentSelectedDay,
+    this.showEvents = false,
+    this.eventBuilder,
+    this.headerMonthColor = Colors.black,
+  }) {
     calendarProvider = createInstance(calendarType);
-
     EventCalendar.events = events ?? [];
     EventCalendar.headerMonthStringType =
         headerMonthStringType ?? HeaderMonthStringTypes.Full;
@@ -119,37 +127,43 @@ class _EventCalendarState extends State<EventCalendar> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Container(
-        color: Colors.white,
-        child: Column(
-          children: [
-            Header(
-              onHeaderChanged: () {
-                setState(() {
-                  widget.onMonthChanged();
-                });
-              },
-            ),
-            isMonthlyView()
-                ? CalendarMonthly(onCalendarChanged: () {
-              setState(() {});
-            }, getCurrentSelectedDay: (day, month, year) {
-              widget.getCurrentSelectedDay(day, month, year);
-            },)
-                : CalendarDaily(
-              onCalendarChanged: () {
-                setState(() {});
-              },
-              getCurrentSelectedDay: (day, month, year) {
-                widget.getCurrentSelectedDay(day, month, year);
-              },
-            ),
-            Events(
-                onEventsChanged: () {
-                  setState(() {});
-                }),
-          ],
-        ),
+      child: Column(
+        children: [
+          Header(
+            headerMonthColor: widget.headerMonthColor,
+            onHeaderChanged: () {
+              setState(() {
+                widget.onMonthChanged();
+              });
+            },
+          ),
+          isMonthlyView()
+              ? CalendarMonthly(
+                  showEvents: widget.showEvents,
+                  onCalendarChanged: () {
+                    setState(() {});
+                  },
+                  getCurrentSelectedDay: (day, month, year) {
+                    widget.getCurrentSelectedDay(day, month, year);
+                  },
+                )
+              : CalendarDaily(
+                  showEvents: widget.showEvents,
+                  onCalendarChanged: () {
+                    setState(() {});
+                  },
+                  getCurrentSelectedDay: (day, month, year) {
+                    widget.getCurrentSelectedDay(day, month, year);
+                  },
+                ),
+          if (widget.showEvents) ...[
+            widget.eventBuilder != null
+                ? widget.eventBuilder!(context, EventSelector().updateEvents())
+                : Events(onEventsChanged: () {
+                    setState(() {});
+                  }),
+          ]
+        ],
       ),
     );
   }
