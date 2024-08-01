@@ -126,45 +126,43 @@ class EventCalendar extends StatefulWidget {
 class _EventCalendarState extends State<EventCalendar> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
-        children: [
-          Header(
-            headerMonthColor: widget.headerMonthColor,
-            onHeaderChanged: () {
-              setState(() {
-                widget.onMonthChanged();
-              });
-            },
-          ),
-          isMonthlyView()
-              ? CalendarMonthly(
-                  showEvents: widget.showEvents,
-                  onCalendarChanged: () {
-                    setState(() {});
-                  },
-                  getCurrentSelectedDay: (day, month, year) {
-                    widget.getCurrentSelectedDay(day, month, year);
-                  },
-                )
-              : CalendarDaily(
-                  showEvents: widget.showEvents,
-                  onCalendarChanged: () {
-                    setState(() {});
-                  },
-                  getCurrentSelectedDay: (day, month, year) {
-                    widget.getCurrentSelectedDay(day, month, year);
-                  },
-                ),
-          if (widget.showEvents) ...[
-            widget.eventBuilder != null
-                ? widget.eventBuilder!(context, EventSelector().updateEvents())
-                : Events(onEventsChanged: () {
-                    setState(() {});
-                  }),
-          ]
-        ],
-      ),
+    return Column(
+      children: [
+        Header(
+          headerMonthColor: widget.headerMonthColor,
+          onHeaderChanged: () {
+            setState(() {
+              widget.onMonthChanged();
+            });
+          },
+        ),
+        isMonthlyView()
+            ? CalendarMonthly(
+                showEvents: widget.showEvents,
+                onCalendarChanged: () {
+                  setState(() {});
+                },
+                getCurrentSelectedDay: (day, month, year) {
+                  widget.getCurrentSelectedDay(day, month, year);
+                },
+              )
+            : CalendarDaily(
+                showEvents: widget.showEvents,
+                onCalendarChanged: () {
+                  setState(() {});
+                },
+                getCurrentSelectedDay: (day, month, year) {
+                  widget.getCurrentSelectedDay(day, month, year);
+                },
+              ),
+        if (widget.showEvents) ...[
+          widget.eventBuilder != null
+              ? widget.eventBuilder!(context, EventSelector().updateEvents())
+              : Events(onEventsChanged: () {
+                  setState(() {});
+                }),
+        ]
+      ],
     );
   }
 

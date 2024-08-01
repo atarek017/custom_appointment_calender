@@ -1,0 +1,1 @@
+ /Users/ahmedtarek/StudioProjects/dat_pick/custom_appointment_calender/example/.dart_tool/flutter_build/374da0171d7975613b6208d164bcd5c5/native_assets.yaml: 

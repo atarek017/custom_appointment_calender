@@ -90,14 +90,17 @@ class MyHomePage extends StatelessWidget {
           },
           eventBuilder: (context, events) {
             return Expanded(
-              child: ListView.builder(
-                itemCount: events.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(events[index].title),
-                    subtitle: Text(events[index].description),
-                  );
-                },
+              child: Container(
+                color: Colors.white,
+                child: ListView.builder(
+                  itemCount: events.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(events[index].title),
+                      subtitle: Text(events[index].description),
+                    );
+                  },
+                ),
               ),
             );
           }, onMonthChanged: () {  },
